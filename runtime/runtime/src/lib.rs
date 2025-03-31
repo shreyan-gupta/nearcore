@@ -2205,17 +2205,19 @@ impl Runtime {
             &mut stats,
         )?;
 
-        check_balance(
-            &apply_state.config,
-            &state_update,
-            validator_accounts_update,
-            processing_state.incoming_receipts,
-            &processed_delayed_receipts,
-            &promise_yield_result.timeout_receipts,
-            processing_state.transactions,
-            &receipt_sink.outgoing_receipts(),
-            &stats.balance,
-        )?;
+        if !ProtocolFeature::RemoveCheckBalance.enabled(protocol_version) {
+            check_balance(
+                &apply_state.config,
+                &state_update,
+                validator_accounts_update,
+                processing_state.incoming_receipts,
+                &processed_delayed_receipts,
+                &promise_yield_result.timeout_receipts,
+                processing_state.transactions,
+                &receipt_sink.outgoing_receipts(),
+                &stats.balance,
+            )?;
+        }
 
         state_update.commit(StateChangeCause::UpdatedDelayedReceipts);
         self.apply_state_patch(&mut state_update, state_patch);
